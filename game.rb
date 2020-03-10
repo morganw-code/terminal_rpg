@@ -5,6 +5,7 @@
 
 require_relative 'player'
 require 'cli/ui'
+require 'colorize'
 
 class Game
     attr_accessor :title, :player
@@ -19,6 +20,7 @@ class Game
     def main_frame()
         clear_screen()
         # we should print player location for each new main frame
+        puts "Player location: " + player.location.to_s().blink()
         # we're going to open the frame in blockless mode
         CLI::UI::Frame.open(title)
         # past this point is technically dangerous if we do not remember to pop the frame off the framestack (which the pop_frame method does)    
@@ -33,33 +35,41 @@ class Game
     def show_title_screen()
         main_frame { 
             CLI::UI::Prompt.ask("Title Screen") { |handler|
-                handler.option("Start") {
-                    # technically the frame shouldn't end here in normal flow, but we pullin' strings to make this work!
-                    # temporary fix!
-                    pop_frame()
-                    main_frame {
-                        CLI::UI::Prompt.ask("Main Menu") { |handler|
-                            handler.option("Shop") {
-                                # todo
-                              }
-                            handler.option("Warp") {
-                                CLI::UI::Prompt.ask("Location") { |handler|
-                                    player.map.locations.each() { |key, value|
-                                        handler.option(value) {
-                                            player.location = value.to_sym()
-                                        }
-                                    }
-                                }
-                            }
-                            handler.option("Exit") { }
-                        }
-                        # temporary fix!
-                        pop_frame()
-                    }
-                }
+                handler.option("Start") { show_main_screen() }
+                handler.option("Exit") { exit() }
+            }
+        }
+    end
 
+    def show_main_screen()
+        pop_frame()
+        main_frame {
+            CLI::UI::Prompt.ask("Main Menu") { |handler|
+                handler.option("Shop") {
+                    # todo
+                }
+                handler.option("Warp") {
+                    show_warp_screen()
+                }
                 handler.option("Exit") {
                     exit()
+                }
+            }
+        }
+    end
+
+    def show_warp_screen()
+        pop_frame()
+        main_frame {
+            CLI::UI::Prompt.ask("Location") { |handler|
+                player.map.locations.each() { |key, value|
+                    # ignore our current location
+                    if(player.map.locations[key] != player.location)
+                        handler.option(value) { |selection|
+                            player.location = selection
+                            show_main_screen()
+                        }
+                    end
                 }
             }
         }
@@ -73,7 +83,7 @@ class Game
     def exit()
         # maybe should implement a way to make sure the entire framestack is clear
         pop_frame()
-        abort(nil)
+        abort("Cya!")
     end
 end
 

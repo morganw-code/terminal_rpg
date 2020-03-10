@@ -45,7 +45,7 @@ class Player
       :sword => 1,
       :health_potion => 5
     }
-    @location = :hub
+    @location = map.locations[:hub]
   end
 
   def take_damage(damage_amount)
