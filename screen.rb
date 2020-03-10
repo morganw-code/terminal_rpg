@@ -46,13 +46,33 @@ class Screen
           if(player.last_location.to_sym == :arena)
             handler.option("BATTLE") {
               # todo: npc prep
-              sleep(5)
+              # battle loop should run whilst player != is_dead
+              CLI::UI::Prompt.ask("OPPONENT") { |handler|
+                handler.option("Gael from Dark Souls") {
+                  while(!player.is_dead)
+                    puts "Name: #{player.name}, Health: #{player.hp}, Level: #{player.level}, Base damage: #{player.damage}"
+                    player.take_damage(10)
+                    sleep(1)
+                  end
+
+                  if(player.is_dead)
+                    puts "#{player.name} died!".colorize(:red)
+                    sleep(2)
+                  end
+                }
+
+                handler.option("Steve from Minecraft") {
+                  puts "no :("
+                  sleep(2)
+                }
+              }
             }
           end
 
           handler.option("INVENTORY") {
             puts player.inventory.to_s.on_red.blink
-            sleep(4)
+            puts "Press [ENTER] to continue..."
+            gets
           }
 
           handler.option("WARP") {
@@ -62,9 +82,9 @@ class Screen
                 # only display non-current locations
                 if(location_key != player.last_location)
                   handler.option(location_key.to_s.upcase) { |selection|
-                    player.map.locations[selection.downcase.to_sym()] = 1
-                    player.map.locations[player.last_location.to_sym()] = 0
-                    player.last_location = selection.downcase.to_sym()
+                    player.map.locations[selection.downcase.to_sym] = 1
+                    player.map.locations[player.last_location.to_sym] = 0
+                    player.last_location = selection.downcase.to_sym
                   }
                 end
               end

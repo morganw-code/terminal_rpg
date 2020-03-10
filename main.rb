@@ -21,7 +21,6 @@ class Boss < NPC
   attr_accessor :base_dmg
   def initialize(name)
     super(name)
-    @base_dmg = 10 * @level
     map = Map.new()
     map.locations[:arena]
   end
@@ -34,10 +33,14 @@ class Player
                 :damage,
                 :map,
                 :inventory,
-                :last_location
+                :last_location,
+                :is_dead
 
   def initialize(name)
     @name = name
+    @level = 0
+    @hp = 100
+    @damage = 10
     @map = Map.new()
     @map.locations[:hub] = 1 # default location
     @inventory = {
@@ -46,8 +49,21 @@ class Player
     }
     @last_location = :hub
   end
+
+  def take_damage(damage_amount)
+    if(@hp - damage_amount != 0)
+      @hp -= damage_amount
+    else
+      @is_dead = true
+    end
+  end
+
+  def to_s()
+    # todo: to_s override method that will display stats
+    return "#{@name}"
+  end
 end
 
-npc = NPC.new("Big John")
-player = Player.new("Mike")
+npc = NPC.new("Innocent Shopkeeper")
+player = Player.new("Morgan")
 screen = Screen.new("Terminal RPG", player)
