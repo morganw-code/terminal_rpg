@@ -1,9 +1,9 @@
 class Map
   def initialize()
     @locations = {
-      :hub => 0, # 1 == unlocked location
-      :arena => 0,
-      :shop => 0
+      :hub => "Hub",
+      :arena => "Arena",
+      :shop => "Shop"
     }
   end
 

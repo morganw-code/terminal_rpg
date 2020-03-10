@@ -2,6 +2,8 @@
     Morgan Webb - CA2020
     T1A2 - Terminal Application
 =end
+
+require_relative 'player'
 require 'cli/ui'
 
 class Game
@@ -16,15 +18,16 @@ class Game
 
     def main_frame()
         clear_screen()
+        # we should print player location for each new main frame
         # we're going to open the frame in blockless mode
         CLI::UI::Frame.open(title)
-            yield
-        # past this point is technically dangerous if we do not remember to pop the frame off the framestack (which the pop_frame method does)
+        # past this point is technically dangerous if we do not remember to pop the frame off the framestack (which the pop_frame method does)    
+            yield()
     end
 
-    # we will have to call this method to close the frame since our "main" frame is in blockless mode
+    # we will have to call this method to close the frame since our main frame is in blockless mode
     def pop_frame()
-        CLI::UI::Frame.close(nil)
+        CLI::UI::Frame.close("Pop!")
     end
 
     def show_title_screen()
@@ -36,8 +39,18 @@ class Game
                     pop_frame()
                     main_frame {
                         CLI::UI::Prompt.ask("Main Menu") { |handler|
-                            handler.option("Shop") { }
-                            handler.option("Warp") { }
+                            handler.option("Shop") {
+                                # todo
+                              }
+                            handler.option("Warp") {
+                                CLI::UI::Prompt.ask("Location") { |handler|
+                                    player.map.locations.each() { |key, value|
+                                        handler.option(value) {
+                                            player.location = value.to_sym()
+                                        }
+                                    }
+                                }
+                            }
                             handler.option("Exit") { }
                         }
                         # temporary fix!
@@ -58,8 +71,11 @@ class Game
     end
 
     def exit()
-        abort("cya!")
+        # maybe should implement a way to make sure the entire framestack is clear
+        pop_frame()
+        abort(nil)
     end
 end
 
-game = Game.new("Terminal RPG", nil)
+player = Player.new("Morgan")
+game = Game.new("Terminal RPG", player)

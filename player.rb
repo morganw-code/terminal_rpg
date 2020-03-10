@@ -1,6 +1,5 @@
 # purpose, target audience, how the user is gonna interact
 
-require_relative('./screen.rb')
 require_relative('./map.rb')
 
 class NPC
@@ -33,7 +32,7 @@ class Player
                 :damage,
                 :map,
                 :inventory,
-                :last_location,
+                :location,
                 :is_dead
 
   def initialize(name)
@@ -42,12 +41,11 @@ class Player
     @hp = 100
     @damage = 10
     @map = Map.new()
-    @map.locations[:hub] = 1 # default location
     @inventory = {
       :sword => 1,
       :health_potion => 5
     }
-    @last_location = :hub
+    @location = :hub
   end
 
   def take_damage(damage_amount)
@@ -65,4 +63,3 @@ end
 
 npc = NPC.new("Innocent Shopkeeper")
 player = Player.new("Morgan")
-screen = Screen.new("Terminal RPG", player)
