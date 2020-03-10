@@ -40,7 +40,7 @@ class Screen
       clear_screen()
 
       CLI::UI::Frame.open("MENU") {
-        puts "Current location: #{player.last_location}"
+        puts "Current location: " + "#{player.last_location}".blink
 
         CLI::UI::Prompt.ask("SELECTION") { |handler|
           if(player.last_location.to_sym == :arena)
@@ -52,20 +52,24 @@ class Screen
                   while(!player.is_dead)
                     puts "Name: #{player.name}, Health: #{player.hp}, Level: #{player.level}, Base damage: #{player.damage}"
                     player.take_damage(10)
-                    sleep(1)
-                  end
-
-                  if(player.is_dead)
-                    puts "#{player.name} died!".colorize(:red)
-                    sleep(2)
+                    if(!player.is_dead)
+                      sleep(0.5)
+                    end
                   end
                 }
 
                 handler.option("Steve from Minecraft") {
-                  puts "no :("
-                  sleep(2)
+                  player.take_damage(1000)
                 }
               }
+
+              if(player.is_dead)
+                puts "#{player.name} died!".colorize(:red)
+                puts "Reviving..."
+                player.is_dead = false
+                player.hp = 100
+                sleep(2)
+              end
             }
           end
 
@@ -85,9 +89,19 @@ class Screen
                     player.map.locations[selection.downcase.to_sym] = 1
                     player.map.locations[player.last_location.to_sym] = 0
                     player.last_location = selection.downcase.to_sym
+
+                    case selection.downcase.to_sym
+                    when :shop
+                      puts "Fair nuff m8tie180"
+                      sleep(4)
+                    end
                   }
                 end
               end
+
+              handler.option("BACK") {
+                # flow falls through back to menu-loop
+              }
             }
           }
 

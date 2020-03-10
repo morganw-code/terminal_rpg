@@ -7,7 +7,13 @@ class Map
     }
   end
 
+  # getter
   def locations()
     return @locations
+  end
+
+  #setter
+  def locations=(override)
+    @locations = override
   end
 end

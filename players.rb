@@ -51,7 +51,7 @@ class Player
   end
 
   def take_damage(damage_amount)
-    if(@hp - damage_amount != 0)
+    if(@hp - damage_amount > 0)
       @hp -= damage_amount
     else
       @is_dead = true
@@ -59,7 +59,6 @@ class Player
   end
 
   def to_s()
-    # todo: to_s override method that will display stats
     return "#{@name}"
   end
 end
