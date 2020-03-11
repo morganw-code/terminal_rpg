@@ -1,10 +1,10 @@
 class NPC
-    attr_accessor :name, :level, :inventory, :price_list
+    attr_accessor :name, :level, :hp, :inventory, :price_list
   
-    def initialize(name, level = 0)
+    def initialize(name, hp = 100, level = 0)
       @name = name
       @level = level
-      
+      @hp = hp
       @inventory = {
         # item => { item_str => stock }
         :sword => { "Sword" => 1 },
@@ -19,10 +19,13 @@ class NPC
 end
   
 class Boss < NPC
-  attr_accessor :base_dmg
+  attr_accessor :base_dmg, :location, :alive
   def initialize(name)
-    super(name)
+    @base_dmg = 3
+    @alive = true
+    # init parent class initializer with 
+    super(name, 100)
     map = Map.new()
-    map.locations[:arena]
+    location = map.locations[:arena]
   end
 end

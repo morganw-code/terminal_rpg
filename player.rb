@@ -12,7 +12,7 @@ class Player
                 :map,
                 :inventory,
                 :location,
-                :is_dead
+                :alive
 
   def initialize(name)
     @name = name
@@ -21,6 +21,7 @@ class Player
     @gold = 100
     @damage = 10
     @map = Map.new()
+    @alive = true
     @inventory = {
       :sword => 1,
       :health_potion => 5

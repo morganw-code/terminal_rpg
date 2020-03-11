@@ -9,12 +9,13 @@ require 'cli/ui'
 require 'colorize'
 
 class Game
-    attr_accessor :title, :player, :shop_npc
+    attr_accessor :title, :player, :shop_npc, :gael
 
-    def initialize(title, player, shop_npc)
+    def initialize(title, player, shop_npc, gael)
         @title = title
         @player = player
         @shop_npc = shop_npc
+        @gael = gael
         show_title_screen()
     end
 
@@ -146,13 +147,13 @@ class Game
         main_frame {
             CLI::UI::Prompt.ask("Choose your opponent") { |handler|
                 handler.option("Gael from Dark Souls") {
-                    battle_gael()
+                    battle_prep_gael()
                 }
             }
         }
     end
 
-    def battle_gael()
+    def battle_prep_gael()
         pop_frame()
         main_frame {
             CLI::UI::Prompt.ask("Gael: so you wanna die?") { |handler|
@@ -162,13 +163,7 @@ class Game
                 }
 
                 handler.option("Bring it on!") {
-                    while(!player.is_dead)
-                        puts "Name: #{player.name}, Health: #{player.hp}, Level: #{player.level}, Base damage: #{player.damage}"
-                        player.take_damage(10)
-                        if(!player.is_dead)
-                          sleep(0.5)
-                        end
-                    end
+                    init_gael_battle()
                 }
 
                 handler.option("Actually, now that I think of it, I have to be somewhere.") {
@@ -176,16 +171,21 @@ class Game
                 }
             }
 
-            if(player.is_dead)
-                puts "#{player.name} died!".colorize(:red)
-                puts "Reviving..."
-                player.is_dead = false
-                player.hp = 100
-                sleep(2)
-            end
-
             show_main_screen()
         }
+    end
+
+    def init_gael_battle()
+        pop_frame()
+        while(@player.alive && @gael.alive)
+            main_frame {
+                puts @player.hp
+                @player.take_damage(10)
+                sleep(0.1)
+                pop_frame()
+            }
+    
+        end
     end
 
     def clear_screen()
@@ -202,4 +202,5 @@ end
 
 player = Player.new("Morgan")
 shop_npc = NPC.new("Mike")
-game = Game.new("Terminal RPG", player, shop_npc)
+gael = Boss.new("Gael")
+game = Game.new("Terminal RPG", player, shop_npc, gael)
