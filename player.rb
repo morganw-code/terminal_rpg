@@ -1,34 +1,13 @@
 # purpose, target audience, how the user is gonna interact
 
 require_relative('./map.rb')
-
-class NPC
-  attr_accessor :name,
-                :level
-
-  def initialize(name, level = 0)
-    @name = name
-    @level = level
-    @inventory = {
-      :sword => 1,
-      :health_potion => 5
-    }
-  end
-end
-
-class Boss < NPC
-  attr_accessor :base_dmg
-  def initialize(name)
-    super(name)
-    map = Map.new()
-    map.locations[:arena]
-  end
-end
+require('nokogiri')
 
 class Player
   attr_accessor :name,
                 :level,
                 :hp,
+                :gold,
                 :damage,
                 :map,
                 :inventory,
@@ -39,6 +18,7 @@ class Player
     @name = name
     @level = 0
     @hp = 100
+    @gold = 100
     @damage = 10
     @map = Map.new()
     @inventory = {
@@ -56,10 +36,42 @@ class Player
     end
   end
 
+  def write_save()
+    file = File.open("save.xml", "w+") { |file|
+      xml_builder = Nokogiri::XML::Builder.new() { |xml|
+        xml.root {
+          xml.profile {
+            xml.name(@name)
+            xml.level(@level)
+            xml.hp(@hp)
+            xml.gold(@gold)
+          }
+
+          xml.inventory {
+            xml.sword(@inventory[:sword])
+            xml.health_potion(@inventory[:health_potion])
+          }
+        }
+      }
+      file.write(xml_builder.to_xml())
+    }
+  end
+
+  def load_save()
+    if(File.file?("save.xml"))
+      file = File.open("save.xml", "r") { |file|
+        # todo
+      }
+      return true
+    else
+      return false
+    end
+  end
+
   def to_s()
     return "#{@name}"
   end
 end
 
-npc = NPC.new("Innocent Shopkeeper")
+# npc = NPC.new("Innocent Shopkeeper")
 player = Player.new("Morgan")
