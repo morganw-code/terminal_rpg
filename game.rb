@@ -179,13 +179,21 @@ class Game
         pop_frame()
         while(@player.alive && @gael.alive)
             main_frame {
+                gael.attack(@player)
                 puts @player.hp
-                @player.take_damage(10)
-                sleep(0.1)
+                puts "Press any key to continue..."
+                gets
                 pop_frame()
             }
-    
         end
+
+        clear_screen()
+        death_message = @player.alive ? "#{@gael.name} died..." : "#{@player.name} died..."
+        puts death_message.blink()
+        @player.alive = true
+        @gael.alive = true
+        puts "Press any key to continue..."
+        gets
     end
 
     def clear_screen()
@@ -202,5 +210,12 @@ end
 
 player = Player.new("Morgan")
 shop_npc = NPC.new("Mike")
-gael = Boss.new("Gael")
+gael_attack_list = {
+    :miss => 0.0,
+    :standard => 1.0,
+    :strike => 1.4,
+    :dark => 2.7,
+    :thrust => 2.1
+}
+gael = Boss.new("Gael", gael_attack_list)
 game = Game.new("Terminal RPG", player, shop_npc, gael)

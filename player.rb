@@ -30,10 +30,11 @@ class Player
   end
 
   def take_damage(damage_amount)
+    
     if(@hp - damage_amount > 0)
       @hp -= damage_amount
     else
-      @is_dead = true
+      @alive = false
     end
   end
 
