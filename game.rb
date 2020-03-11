@@ -24,7 +24,7 @@ class Game
         puts "Player location: " + @player.location.to_s().blink()
         # we're going to open the frame in blockless mode
         CLI::UI::Frame.open(title)
-        # past this point is technically dangerous if we do not remember to pop the frame off the framestack (which the pop_frame method does)    
+        # past this point is technically dangerous if we do not remember to pop the frame off the framestack (which the pop_frame method does)
             yield()
 
         # if we get here
@@ -37,7 +37,7 @@ class Game
     end
 
     def show_title_screen()
-        main_frame { 
+        main_frame {
             CLI::UI::Prompt.ask("Title Screen") { |handler|
                 handler.option("New game") { show_main_screen() }
                 handler.option("Load save") {
@@ -61,15 +61,18 @@ class Game
             CLI::UI::Prompt.ask("Main Menu") { |handler|
                 if(@player.location == @player.map.locations[:arena])
                     handler.option("Battle") {
-                        # todo
+                        show_battle_screen()
                     }
                 end
                 handler.option("Inventory") {
-                    @player.write_save()
+                    # @player.write_save()
+                    show_inventory_screen()
                 }
-                handler.option("Shop") {
-                    show_shop_screen()
-                }
+                if(@player.location == @player.map.locations[:shop])
+                    handler.option("Shop") {
+                        show_shop_screen()
+                    }
+                end
                 handler.option("Warp") {
                     show_warp_screen()
                 }
@@ -77,6 +80,18 @@ class Game
                     exit()
                 }
             }
+        }
+    end
+
+    def show_inventory_screen()
+        pop_frame()
+        main_frame {
+            CLI::UI::Frame.open("Inventory", color: CLI::UI::Color::MAGENTA) {
+                puts player.inventory.to_s.on_red.blink
+                puts "Press [ENTER] to continue..."
+                gets
+            }
+            show_main_screen()
         }
     end
 
@@ -117,9 +132,59 @@ class Game
                                 sleep(2)
                             end
                         }
+                        handler.option("Back") {
+                            show_main_screen()
+                        }
                     }
                 }
             }
+        }
+    end
+
+    def show_battle_screen()
+        pop_frame()
+        main_frame {
+            CLI::UI::Prompt.ask("Choose your opponent") { |handler|
+                handler.option("Gael from Dark Souls") {
+                    battle_gael()
+                }
+            }
+        }
+    end
+
+    def battle_gael()
+        pop_frame()
+        main_frame {
+            CLI::UI::Prompt.ask("Gael: so you wanna die?") { |handler|
+                handler.option("no u") {
+                    puts "Gael dropped dead. rip."
+                    sleep(2)
+                }
+
+                handler.option("Bring it on!") {
+                    while(!player.is_dead)
+                        puts "Name: #{player.name}, Health: #{player.hp}, Level: #{player.level}, Base damage: #{player.damage}"
+                        player.take_damage(10)
+                        if(!player.is_dead)
+                          sleep(0.5)
+                        end
+                    end
+                }
+
+                handler.option("Actually, now that I think of it, I have to be somewhere.") {
+                    show_main_screen()
+                }
+            }
+
+            if(player.is_dead)
+                puts "#{player.name} died!".colorize(:red)
+                puts "Reviving..."
+                player.is_dead = false
+                player.hp = 100
+                sleep(2)
+            end
+
+            show_main_screen()
         }
     end
 

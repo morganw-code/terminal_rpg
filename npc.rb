@@ -18,11 +18,11 @@ class NPC
     end
 end
   
-  class Boss < NPC
-    attr_accessor :base_dmg
-    def initialize(name)
-      super(name)
-      map = Map.new()
-      map.locations[:arena]
-    end
+class Boss < NPC
+  attr_accessor :base_dmg
+  def initialize(name)
+    super(name)
+    map = Map.new()
+    map.locations[:arena]
   end
+end

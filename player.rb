@@ -72,6 +72,3 @@ class Player
     return "#{@name}"
   end
 end
-
-# npc = NPC.new("Innocent Shopkeeper")
-player = Player.new("Morgan")
