@@ -67,19 +67,23 @@ class Player
 
   def attack(attack_selection, npc)
     actual_attack = attack_selection
+    # determine if the attack was successful or not
     n = Random.rand(0..1)
     case n
       when 0
+        # miss attack
         actual_attack = :miss
+
       when 1
+        # deal damage to npc
         dmg = @base_damage * @attack_multiplier[attack_selection]
         npc.take_damage(dmg)
     end
 
     if(actual_attack != :miss)
-      puts "#{self.name} hit #{npc} with #{actual_attack} attack, dealing #{dmg} damage"
+      puts "#{self.name} hit #{npc.name} with #{actual_attack} attack, dealing #{dmg} damage"
     else
-      puts "#{self.name} missed an attack against #{npc}"
+      puts "#{self.name} missed an attack against #{npc.name}"
     end
   end
 

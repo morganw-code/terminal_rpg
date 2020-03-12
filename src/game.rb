@@ -9,7 +9,7 @@ require 'cli/ui'
 require 'colorize'
 
 class Game
-    attr_accessor :title, :player, :shop_npc, :gael
+    attr_accessor :title, :player, :shop_npc, :gael, :battle_turn
 
     def initialize(title, player, shop_npc, gael)
         @title = title
@@ -29,6 +29,21 @@ class Game
             yield()
 
         # if we get here
+        pop_frame()
+    end
+
+    def battle_frame(npc)
+        clear_screen()
+        # calculate npc hp bar percentage
+        percent = npc.hp / 100
+        puts "IN BATTLE".colorize(:red).blink()
+        CLI::UI::Frame.open("Battle")
+            puts npc.battle_name
+            CLI::UI::Progress.progress { |bar|
+                bar.tick(set_percent: percent)
+            }
+            yield
+
         pop_frame()
     end
 
@@ -177,52 +192,56 @@ class Game
 
     def init_gael_battle()
         pop_frame()
+        @battle_turn = @player
         while(@player.alive && @gael.alive)
-            main_frame {
-                percent = @gael.hp / 100 # todo cap health
-                puts "Slave Knight Gael"
-                CLI::UI::Progress.progress { |bar|
-                    bar.tick(set_percent: percent)
-                }
-
-                gael.attack(@player)
-
+            battle_frame(@gael) {
                 puts "Your HP: #{@player.hp.round(1)}"
                 
-                CLI::UI::Prompt.ask("Selection") { |handler|
-                    handler.option("Standard") {
-                        @player.attack(:standard, @gael)
+                if(@battle_turn == @player)
+                    CLI::UI::Prompt.ask("Selection") { |handler|
+                        handler.option("Standard") {
+                            @player.attack(:standard, @gael)
+                        }
+
+                        handler.option("Strike") {
+                            @player.attack(:strike, @gael)
+                        }
+
+                        handler.option("Dark") {
+                            @player.attack(:dark, @gael)
+                        }
+
+                        handler.option("Thrust") {
+                            @player.attack(:thrust, @gael)
+                        }
+                        
+                        handler.option("Heal") {
+                            # check if player has any more health potions
+                            if @player.inventory[:health_potion] > 0
+                                @player.inventory[:health_potion] -= 1
+                                @player.hp += 50
+                            else
+                                puts "You have no health potions remaining!".blink()
+                                sleep(2)
+                            end
+                        }
+
+                        handler.option("Skip turn") {
+                            # flow falls through, and loop interates
+                        }
                     }
 
-                    handler.option("Strike") {
-                        @player.attack(:strike, @gael)
-                    }
+                    @battle_turn = @gael
 
-                    handler.option("Dark") {
-                        @player.attack(:dark, @gael)
-                    }
+                elsif(@battle_turn == @gael)
+                    gael.attack(@player)
+                    @battle_turn = @player
+                end
 
-                    handler.option("Thrust") {
-                        @player.attack(:thrust, @gael)
-                    }
-                    
-                    handler.option("Heal") {
-                        # check if player has any more health potions
-                        if @player.inventory[:health_potion] > 0
-                            @player.inventory[:health_potion] -= 1
-                            @player.hp += 50
-                        else
-                            puts "You have no health potions remaining!".blink()
-                            sleep(2)
-                        end
-                    }
+                sleep(2)
 
-                    handler.option("Skip turn") {
-                        # flow falls through, and loop interates
-                    }
-                }
-
-                pop_frame()
+                # pop_frame()
+                clear_screen()
             }
         end
 
@@ -259,5 +278,5 @@ gael_attack_list = {
     :dark => 2.7,
     :thrust => 2.1
 }
-gael = Boss.new("Gael", gael_attack_list)
+gael = Boss.new("Gael", "Slave Knight Gael", gael_attack_list)
 game = Game.new("Terminal RPG", player, shop_npc, gael)

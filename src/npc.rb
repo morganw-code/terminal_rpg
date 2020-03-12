@@ -19,11 +19,12 @@ class NPC
 end
   
 class Boss < NPC
-  attr_accessor :base_dmg, :location, :alive, :attack_list, :debuf
-  def initialize(name, attack_list = {})
+  attr_accessor :base_dmg, :battle_name, :location, :alive, :attack_list, :debuf
+  def initialize(name, battle_name, attack_list = {})
     @base_dmg = 3
     @alive = true
     @attack_list = attack_list
+    @battle_name = battle_name
     # init parent class initializer with 
     super(name, 100)
     map = Map.new()
