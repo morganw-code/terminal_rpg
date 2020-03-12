@@ -1,3 +1,5 @@
+require 'colorize'
+
 class NPC
     attr_accessor :name, :level, :hp, :inventory, :price_list
   
@@ -46,9 +48,9 @@ class Boss < NPC
     dmg = @base_dmg * @attack_list[random_attack]
     player.take_damage(dmg)
     if(random_attack != :miss)
-      puts "#{self.name} hit #{player} with #{random_attack} attack, dealing #{dmg.round(1)} damage"
+      puts "#{self.name} hit #{player} with #{random_attack} attack, dealing #{dmg.round(1)} damage".colorize(:red)
     else
-      puts "#{self.name} missed an attack against #{player}"
+      puts "#{self.name} missed an attack against #{player}".colorize(:red)
     end
   end
 end

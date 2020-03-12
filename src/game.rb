@@ -244,8 +244,7 @@ class Game
                             @player.attack(:thrust, @gael)
                         }
                         
-                        handler.option("Inventory".colorize(:light_blue)) {
-                            gael_miss_turn = true    
+                        handler.option("Inventory".colorize(:light_blue)) {  
                             show_inventory_screen()
                         }
 
@@ -264,10 +263,7 @@ class Game
                             # flow falls through, and loop interates
                         }
                     }
-
-                    if(gael_miss_turn == false)
-                        @battle_turn = @gael
-                    end
+                    @battle_turn = @gael
 
                 elsif(@battle_turn == @gael)
                     gael.attack(@player)
@@ -284,6 +280,7 @@ class Game
         clear_screen()
         death_message = @player.alive ? "#{@gael.name} died..." : "#{@player.name} died..."
         puts death_message.blink()
+        @player.in_battle = true
         @player.alive = true
         @gael.alive = true
         @player.hp = 100
