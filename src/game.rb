@@ -175,14 +175,31 @@ class Game
         }
     end
 
+    both_alive = @player.alive && @gael.alive
+
     def init_gael_battle()
         pop_frame()
-        while(@player.alive && @gael.alive)
+        while(both_alive)
             main_frame {
                 gael.attack(@player)
                 puts @player.hp
-                puts "Press any key to continue..."
-                gets
+                
+                CLI::UI::Prompt.ask("Selection") { |handler|
+                    handler.option("Heal") {
+                        # check if player has any more health potions
+                        if @player.inventory[:health_potion] > 0
+                            @player.inventory[:health_potion] -= 1
+                            @player.hp += 50
+                        else
+                            puts "You have no health potions remaining!".blink()
+                            sleep(2)
+                        end
+                    }
+                    handler.option("Skip turn") {
+                        # flow falls through, and loop interates
+                    }
+                }
+
                 pop_frame()
             }
         end
@@ -192,6 +209,8 @@ class Game
         puts death_message.blink()
         @player.alive = true
         @gael.alive = true
+        @player.hp = 100
+        @gael.hp = 100
         puts "Press any key to continue..."
         gets
     end
@@ -210,6 +229,7 @@ end
 
 player = Player.new("Morgan")
 shop_npc = NPC.new("Mike")
+# attack_type | damage modifier
 gael_attack_list = {
     :miss => 0.0,
     :standard => 1.0,
