@@ -45,7 +45,7 @@ class Boss < NPC
     dmg = @base_dmg * @attack_list[random_attack]
     player.take_damage(dmg)
     if(random_attack != :miss)
-      puts "#{self.name} hit #{player} with #{random_attack} attack, dealing #{dmg} damage"
+      puts "#{self.name} hit #{player} with #{random_attack} attack, dealing #{dmg.round(1)} damage"
     else
       puts "#{self.name} missed an attack against #{player}"
     end

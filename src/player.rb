@@ -71,8 +71,6 @@ class Player
     case n
       when 0
         actual_attack = :miss
-        p "missed"
-        gets
       when 1
         dmg = @base_damage * @attack_multiplier[attack_selection]
         npc.take_damage(dmg)

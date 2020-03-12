@@ -180,12 +180,14 @@ class Game
         while(@player.alive && @gael.alive)
             main_frame {
                 percent = @gael.hp / 100 # todo cap health
+                puts "Slave Knight Gael"
                 CLI::UI::Progress.progress { |bar|
                     bar.tick(set_percent: percent)
                 }
 
                 gael.attack(@player)
-                puts "Your HP: #{@player.hp}"
+
+                puts "Your HP: #{@player.hp.round(1)}"
                 
                 CLI::UI::Prompt.ask("Selection") { |handler|
                     handler.option("Standard") {
