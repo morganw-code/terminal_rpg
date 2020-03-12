@@ -7,6 +7,7 @@ require_relative 'player'
 require_relative 'npc'
 require 'cli/ui'
 require 'colorize'
+require 'terminal-table'
 
 class Game
     attr_accessor :title, :player, :shop_npc, :gael, :battle_turn
@@ -39,6 +40,7 @@ class Game
         puts "IN BATTLE".colorize(:red).blink()
         CLI::UI::Frame.open("Battle")
             puts npc.battle_name
+            # bootleg boss hp bar. not ideal because it gets created and destroyed each frame iteration
             CLI::UI::Progress.progress { |bar|
                 bar.tick(set_percent: percent)
             }
@@ -57,6 +59,7 @@ class Game
             CLI::UI::Prompt.ask("Title Screen") { |handler|
                 handler.option("New game") { show_main_screen() }
                 handler.option("Load save") {
+                    # load save returns false if the file does not exist
                     if(player.load_save())
                         puts "Save found! Starting game...".blink()
                     else
@@ -71,27 +74,33 @@ class Game
         }
     end
 
-    def show_main_screen()   
+    def show_main_screen()
+        # close last frame so our new one wont nest
         pop_frame()
         main_frame {
+            # handler is a block from Promp.ask, we can add options to the prompt
             CLI::UI::Prompt.ask("Main Menu") { |handler|
                 if(@player.location == @player.map.locations[:arena])
                     handler.option("Battle") {
                         show_battle_screen()
                     }
                 end
+
                 handler.option("Inventory") {
                     # @player.write_save()
                     show_inventory_screen()
                 }
+
                 if(@player.location == @player.map.locations[:shop])
                     handler.option("Shop") {
                         show_shop_screen()
                     }
                 end
+
                 handler.option("Warp") {
                     show_warp_screen()
                 }
+
                 handler.option("Exit") {
                     exit()
                 }
@@ -102,13 +111,24 @@ class Game
     def show_inventory_screen()
         pop_frame()
         main_frame {
-            CLI::UI::Frame.open("Inventory", color: CLI::UI::Color::MAGENTA) {
-                puts player.inventory.to_s.on_red.blink
-                puts "Press [ENTER] to continue..."
-                gets
+
+            inventory_arr = []
+            @player.inventory.each { |key, value|
+                inventory_arr.push([key, value])
             }
-            show_main_screen()
+            table = Terminal::Table.new :rows => inventory_arr
+            puts table
+
+            continue_prompt()
         }
+        if(!@player.in_battle)
+            show_main_screen()
+        end
+    end
+
+    def continue_prompt()
+        puts "Press [ENTER] to continue..."
+        gets
     end
 
     def show_warp_screen()
@@ -132,11 +152,17 @@ class Game
         pop_frame()
         # we should iterate over the npc's inventory to display options
         main_frame {
+            # prompt shop items
             CLI::UI::Prompt.ask("Shop Items") { |handler|
+                # the inventory hash is nested. eg. { :health_potion => { "Health Potion" => 5 } }
                 @shop_npc.inventory.each() { |key_sym, value|
+                    # access nested hash { "Health Potion" => 5 } with the key_sym
                     @shop_npc.inventory[key_sym].each { |key, value|
+                        # display each item
                         handler.option("Item: #{key} | Quantity: #{value} | Price: #{@shop_npc.price_list[key_sym]}") { |selection|
-                            if(@player.gold - @shop_npc.price_list[key_sym] >= 0 && @shop_npc.inventory[key_sym][key] > 0)
+                            # if player gold - the price of item is greater than or equal to 0 && item is in stock
+                            allowed_to_buy = (@player.gold - @shop_npc.price_list[key_sym] >= 0 && @shop_npc.inventory[key_sym][key] > 0)
+                            if(allowed_to_buy)
                                 @player.gold -= @shop_npc.price_list[key_sym]
                                 @player.inventory[key_sym] += 1
                                 @shop_npc.inventory[key_sym][key] -= 1
@@ -146,12 +172,13 @@ class Game
                             else
                                 puts "Item out of stock!"
                                 sleep(2)
+                                show_shop_screen()
                             end
                         }
-                        handler.option("Back") {
-                            show_main_screen()
-                        }
                     }
+                }
+                handler.option("Back") {
+                    show_main_screen()
                 }
             }
         }
@@ -192,7 +219,9 @@ class Game
 
     def init_gael_battle()
         pop_frame()
+        @player.in_battle = true
         @battle_turn = @player
+        gael_miss_turn = false
         while(@player.alive && @gael.alive)
             battle_frame(@gael) {
                 puts "Your HP: #{@player.hp.round(1)}"
@@ -215,7 +244,12 @@ class Game
                             @player.attack(:thrust, @gael)
                         }
                         
-                        handler.option("Heal") {
+                        handler.option("Inventory".colorize(:light_blue)) {
+                            gael_miss_turn = true    
+                            show_inventory_screen()
+                        }
+
+                        handler.option("Heal".colorize(:green)) {
                             # check if player has any more health potions
                             if @player.inventory[:health_potion] > 0
                                 @player.inventory[:health_potion] -= 1
@@ -226,12 +260,14 @@ class Game
                             end
                         }
 
-                        handler.option("Skip turn") {
+                        handler.option("Skip turn".colorize(:red)) {
                             # flow falls through, and loop interates
                         }
                     }
 
-                    @battle_turn = @gael
+                    if(gael_miss_turn == false)
+                        @battle_turn = @gael
+                    end
 
                 elsif(@battle_turn == @gael)
                     gael.attack(@player)

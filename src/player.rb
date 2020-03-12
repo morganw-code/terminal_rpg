@@ -15,7 +15,8 @@ class Player
                 :alive,
                 :attack_list,
                 :attack_multiplier,
-                :attack_mana_cost
+                :attack_mana_cost,
+                :in_battle
 
   def initialize(name)
     @name = name
@@ -25,10 +26,12 @@ class Player
     @base_damage = 5
     @map = Map.new()
     @alive = true
-
+    @in_battle = false
+    
     @inventory = {
       :sword => 1,
-      :health_potion => 5
+      :health_potion => 2,
+      :mana_potion => 5
     }
     @location = map.locations[:hub]
 
