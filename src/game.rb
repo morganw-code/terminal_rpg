@@ -175,16 +175,35 @@ class Game
         }
     end
 
-    both_alive = @player.alive && @gael.alive
-
     def init_gael_battle()
         pop_frame()
-        while(both_alive)
+        while(@player.alive && @gael.alive)
             main_frame {
+                percent = @gael.hp / 100 # todo cap health
+                CLI::UI::Progress.progress { |bar|
+                    bar.tick(set_percent: percent)
+                }
+
                 gael.attack(@player)
-                puts @player.hp
+                puts "Your HP: #{@player.hp}"
                 
                 CLI::UI::Prompt.ask("Selection") { |handler|
+                    handler.option("Standard") {
+                        @player.attack(:standard, @gael)
+                    }
+
+                    handler.option("Strike") {
+                        @player.attack(:strike, @gael)
+                    }
+
+                    handler.option("Dark") {
+                        @player.attack(:dark, @gael)
+                    }
+
+                    handler.option("Thrust") {
+                        @player.attack(:thrust, @gael)
+                    }
+                    
                     handler.option("Heal") {
                         # check if player has any more health potions
                         if @player.inventory[:health_potion] > 0
@@ -195,6 +214,7 @@ class Game
                             sleep(2)
                         end
                     }
+
                     handler.option("Skip turn") {
                         # flow falls through, and loop interates
                     }
