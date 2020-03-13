@@ -60,7 +60,7 @@ class Player
   end
 
   def take_damage(damage_amount)
-    
+    # if the damage amount doesn't kill the player, player takes damage
     if(@hp - damage_amount > 0)
       @hp -= damage_amount
     else
@@ -91,6 +91,7 @@ class Player
   end
 
   def write_save()
+    # open file for writing with read / write perms
     file = File.open("save.xml", "w+") { |file|
       xml_builder = Nokogiri::XML::Builder.new() { |xml|
         xml.root {
@@ -107,13 +108,17 @@ class Player
           }
         }
       }
+
+      # write to the file
       file.write(xml_builder.to_xml())
     }
   end
 
   def load_save()
+    # check if file exists
     if(File.file?("save.xml"))
       begin
+        # if the file is in use, we want to be able to catch that error
         file = File.open("save.xml", "r") { |file|
           doc = Nokogiri(file)
           query_stats = doc.at_xpath("//profile")
@@ -136,9 +141,5 @@ class Player
     else
       return false
     end
-  end
-
-  def to_s()
-    return "#{@name}"
   end
 end

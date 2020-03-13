@@ -116,12 +116,13 @@ class Game
         pop_frame()
         main_frame {
             inventory_arr = []
+            # push each item onto an array
             @player.inventory.each { |key, value|
                 inventory_arr.push([key, value])
             }
+            # create a table with the inventory_arr
             table = Terminal::Table.new :rows => inventory_arr
             puts table
-
             continue_prompt()
         }
         if(!@player.in_battle)
@@ -202,16 +203,13 @@ class Game
         pop_frame()
         main_frame {
             CLI::UI::Prompt.ask("Gael: so you wanna die?") { |handler|
-
                 handler.option("Bring it on!") {
                     init_gael_battle()
                 }
-
                 handler.option("Actually, now that I think of it, I have to be somewhere.") {
                     show_main_screen()
                 }
             }
-
             show_main_screen()
         }
     end
@@ -220,7 +218,7 @@ class Game
         pop_frame()
         @player.in_battle = true
         @battle_turn = @player
-        
+       
         while(@player.alive && @gael.alive)
             battle_frame(@gael) {
                 puts "Your HP: #{@player.hp.round(1)}"
@@ -230,23 +228,18 @@ class Game
                         handler.option("Standard") {
                             @player.attack(:standard, @gael)
                         }
-
                         handler.option("Strike") {
                             @player.attack(:strike, @gael)
                         }
-
                         handler.option("Dark") {
                             @player.attack(:dark, @gael)
                         }
-
                         handler.option("Thrust") {
                             @player.attack(:thrust, @gael)
                         }
-                        
                         handler.option("Inventory".colorize(:light_blue)) {  
                             show_inventory_screen()
                         }
-
                         handler.option("Heal".colorize(:green)) {
                             # check if player has any more health potions
                             if @player.inventory[:health_potion] > 0
@@ -279,6 +272,8 @@ class Game
         clear_screen()
         death_message = @player.alive ? "#{@gael.name} died..." : "#{@player.name} died..."
         puts death_message.blink()
+
+        # someone has died so we reset everything
         @player.in_battle = true
         @player.alive = true
         @gael.alive = true
