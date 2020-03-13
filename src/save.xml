@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<root>
+  <profile>
+    <name>Morgan</name>
+    <level>0</level>
+    <hp>100</hp>
+    <gold>235</gold>
+  </profile>
+  <inventory>
+    <sword>2</sword>
+    <health_potion>3</health_potion>
+  </inventory>
+</root>

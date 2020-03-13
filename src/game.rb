@@ -101,6 +101,10 @@ class Game
                     show_warp_screen()
                 }
 
+                handler.option("Save") {
+                    @player.write_save()
+                }
+
                 handler.option("Exit") {
                     exit()
                 }

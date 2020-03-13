@@ -113,10 +113,26 @@ class Player
 
   def load_save()
     if(File.file?("save.xml"))
-      file = File.open("save.xml", "r") { |file|
-        # todo
-      }
-      return true
+      begin
+        file = File.open("save.xml", "r") { |file|
+          doc = Nokogiri(file)
+          query_stats = doc.at_xpath("//profile")
+          query_inventory = doc.at_xpath("//inventory")
+  
+          @name = query_stats.at_xpath("//name").content
+          @level = query_stats.at_xpath("//level").content
+          @gold = query_stats.at_xpath("//gold").content
+  
+          @inventory[:sword] = query_inventory.at_xpath("//gold").content
+          @inventory[:health_potion] = query_inventory.at_xpath("//health_potion").content
+  
+          puts "Loaded save: #{query_stats.at_xpath("//name").content}"
+          return true
+        }
+      rescue => exception
+        puts "#{exception}"
+        return false
+      end
     else
       return false
     end
