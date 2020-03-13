@@ -31,7 +31,7 @@ class Player
     @inventory = {
       :sword => 1,
       :health_potion => 2,
-      :mana_potion => 5
+      :mana_potion => 5,
     }
     @location = map.locations[:hub]
 

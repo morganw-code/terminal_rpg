@@ -111,7 +111,6 @@ class Game
     def show_inventory_screen()
         pop_frame()
         main_frame {
-
             inventory_arr = []
             @player.inventory.each { |key, value|
                 inventory_arr.push([key, value])
@@ -199,10 +198,6 @@ class Game
         pop_frame()
         main_frame {
             CLI::UI::Prompt.ask("Gael: so you wanna die?") { |handler|
-                handler.option("no u") {
-                    puts "Gael dropped dead. rip."
-                    sleep(2)
-                }
 
                 handler.option("Bring it on!") {
                     init_gael_battle()
@@ -221,7 +216,7 @@ class Game
         pop_frame()
         @player.in_battle = true
         @battle_turn = @player
-        gael_miss_turn = false
+        
         while(@player.alive && @gael.alive)
             battle_frame(@gael) {
                 puts "Your HP: #{@player.hp.round(1)}"
@@ -252,7 +247,7 @@ class Game
                             # check if player has any more health potions
                             if @player.inventory[:health_potion] > 0
                                 @player.inventory[:health_potion] -= 1
-                                @player.hp += 50
+                                @player.hp += 25
                             else
                                 puts "You have no health potions remaining!".blink()
                                 sleep(2)
